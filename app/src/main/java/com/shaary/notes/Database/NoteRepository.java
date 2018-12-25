@@ -34,6 +34,7 @@ public class NoteRepository {
         return allNotes;
     }
 
+    //The code below calls different db methods on the new thread. Can be optimized.
     private static class InsertNoteAsyncTask extends AsyncTask<Note, Void, Void> {
         private NoteDao noteDao;
 

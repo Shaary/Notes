@@ -14,9 +14,10 @@ public class Note {
     private String category;
     private Date dueDate;
 
-    public Note(String title, String description, int priority) {
+    public Note(String title, String description, String category, int priority) {
         this.title = title;
         this.description = description;
+        this.category = category;
         this.priority = priority;
     }
 
