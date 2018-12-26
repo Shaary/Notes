@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Notes</string>
+    <string name="due_date_button_text">DUE DATE</string>
+    <string name="delete_date_button_text">Delete due date</string>
 </resources>

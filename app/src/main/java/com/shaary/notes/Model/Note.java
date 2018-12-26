@@ -14,11 +14,12 @@ public class Note {
     private String category;
     private Date dueDate;
 
-    public Note(String title, String description, String category, int priority) {
+    public Note(String title, String description, String category, int priority, Date dueDate) {
         this.title = title;
         this.description = description;
         this.category = category;
         this.priority = priority;
+        this.dueDate = dueDate;
     }
 
     public int getId() {
@@ -68,4 +69,5 @@ public class Note {
     public void setDueDate(Date dueDate) {
         this.dueDate = dueDate;
     }
+
 }

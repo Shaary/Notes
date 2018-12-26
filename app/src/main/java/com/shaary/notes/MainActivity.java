@@ -11,13 +11,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.view.View;
 import android.widget.Toast;
 
 import com.shaary.notes.Adapters.NoteAdapter;
 import com.shaary.notes.Model.Note;
 import com.shaary.notes.ViewModel.NoteViewModel;
 
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -32,12 +32,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         FloatingActionButton buttonAddNote = findViewById(R.id.button_add_note);
-        buttonAddNote.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, AddNoteActivity.class);
-                startActivityForResult(intent, ADD_NOTE_REQUEST);
-            }
+        buttonAddNote.setOnClickListener(view -> {
+            Intent intent = new Intent(MainActivity.this, AddNoteActivity.class);
+            startActivityForResult(intent, ADD_NOTE_REQUEST);
         });
 
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
@@ -70,17 +67,15 @@ public class MainActivity extends AppCompatActivity {
             }
         }).attachToRecyclerView(recyclerView);
 
-        noteAdapter.setOnItemClickListener(new NoteAdapter.onItemClickListener() {
-            @Override
-            public void onItemClick(Note note) {
-                Intent intent = new Intent(MainActivity.this, AddNoteActivity.class);
-                intent.putExtra(AddNoteActivity.EXTRA_TITLE, note.getTitle());
-                intent.putExtra(AddNoteActivity.EXTRA_DESC, note.getDescription());
-                intent.putExtra(AddNoteActivity.EXTRA_CATEGORY, note.getCategory());
-                intent.putExtra(AddNoteActivity.EXTRA_PRIO, note.getPriority());
-                intent.putExtra(AddNoteActivity.EXTRA_ID, note.getId());
-                startActivityForResult(intent, EDIT_NOTE_REQUEST);
-            }
+        noteAdapter.setOnItemClickListener(note -> {
+            Intent intent = new Intent(MainActivity.this, AddNoteActivity.class);
+            intent.putExtra(AddNoteActivity.EXTRA_TITLE, note.getTitle());
+            intent.putExtra(AddNoteActivity.EXTRA_DESC, note.getDescription());
+            intent.putExtra(AddNoteActivity.EXTRA_CATEGORY, note.getCategory());
+            intent.putExtra(AddNoteActivity.EXTRA_PRIO, note.getPriority());
+            intent.putExtra(AddNoteActivity.EXTRA_ID, note.getId());
+            intent.putExtra(AddNoteActivity.EXTRA_DATE, note.getDueDate());
+            startActivityForResult(intent, EDIT_NOTE_REQUEST);
         });
     }
 
@@ -93,8 +88,10 @@ public class MainActivity extends AppCompatActivity {
             String description = data.getStringExtra(AddNoteActivity.EXTRA_DESC);
             String category = data.getStringExtra(AddNoteActivity.EXTRA_CATEGORY);
             int priority = data.getIntExtra(AddNoteActivity.EXTRA_PRIO, 1);
+            Date date = (Date) data.getSerializableExtra(AddNoteActivity.EXTRA_DATE);
 
-            Note note = new Note(title, description, category, priority);
+
+            Note note = new Note(title, description, category, priority, date);
             noteViewModel.insert(note);
 
             Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show();
@@ -110,8 +107,9 @@ public class MainActivity extends AppCompatActivity {
             String description = data.getStringExtra(AddNoteActivity.EXTRA_DESC);
             String category = data.getStringExtra(AddNoteActivity.EXTRA_CATEGORY);
             int priority = data.getIntExtra(AddNoteActivity.EXTRA_PRIO, 1);
+            Date date = (Date) data.getSerializableExtra(AddNoteActivity.EXTRA_DATE);
 
-            Note note = new Note(title, description, category, priority);
+            Note note = new Note(title, description, category, priority, date);
             note.setId(id);
             noteViewModel.update(note);
             Toast.makeText(this, "Note updated", Toast.LENGTH_SHORT).show();
