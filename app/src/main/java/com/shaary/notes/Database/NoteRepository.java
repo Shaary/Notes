@@ -2,6 +2,8 @@ package com.shaary.notes.Database;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
+import android.arch.persistence.db.SimpleSQLiteQuery;
+import android.arch.persistence.db.SupportSQLiteQuery;
 import android.os.AsyncTask;
 
 import com.shaary.notes.Model.Note;
@@ -10,7 +12,7 @@ import java.util.List;
 
 public class NoteRepository {
     private NoteDao noteDao;
-    LiveData<List<Note>> allNotes;
+    private LiveData<List<Note>> allNotes;
 
     public NoteRepository(Application application) {
         NoteDataBase noteDataBase = NoteDataBase.getInstance(application);
@@ -31,6 +33,12 @@ public class NoteRepository {
     }
 
     public LiveData<List<Note>> getAllNotes() {
+        return allNotes;
+    }
+
+    public LiveData<List<Note>> getSortedNotes(String typeSort) {
+        SupportSQLiteQuery query = new SimpleSQLiteQuery("select * from note_table order by " + typeSort + " desc");
+        allNotes = noteDao.getSortedNotes(query);
         return allNotes;
     }
 

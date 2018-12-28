@@ -11,6 +11,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.shaary.notes.Adapters.NoteAdapter;
@@ -25,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int EDIT_NOTE_REQUEST = 2;
 
     private NoteViewModel noteViewModel;
+    private final NoteAdapter noteAdapter = new NoteAdapter();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
 
-        final NoteAdapter noteAdapter = new NoteAdapter();
         recyclerView.setAdapter(noteAdapter);
 
         noteViewModel = ViewModelProviders.of(this).get(NoteViewModel.class);
@@ -117,4 +120,28 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Note not saved", Toast.LENGTH_SHORT).show();
         }
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.sort_notes:
+                noteViewModel.getSortedNotes("title").observe(MainActivity.this, new Observer<List<Note>>() {
+                    @Override
+                    public void onChanged(@Nullable List<Note> notes) {
+                        noteAdapter.submitList(notes);
+                    }
+                });
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 }

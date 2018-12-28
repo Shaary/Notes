@@ -36,4 +36,9 @@ public class NoteViewModel extends AndroidViewModel {
     public LiveData<List<Note>> getAllNotes() {
         return allNotes;
     }
+
+    public LiveData<List<Note>> getSortedNotes(String typeSort) {
+        allNotes = repository.getSortedNotes(typeSort);
+        return allNotes;
+    }
 }
