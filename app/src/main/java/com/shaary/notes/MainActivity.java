@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,17 +24,33 @@ import com.shaary.notes.ViewModel.NoteViewModel;
 import java.util.Date;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SortDialog.onInputListener {
     public static final int ADD_NOTE_REQUEST = 1;
     public static final int EDIT_NOTE_REQUEST = 2;
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     private NoteViewModel noteViewModel;
+    private String sortType = "priority";
+    private String sortOrder = "desc";
+
     private final NoteAdapter noteAdapter = new NoteAdapter();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Checks if user changed the sort method. Default is sort by priority descending.
+        if (savedInstanceState != null) {
+            String savedType = savedInstanceState.getString("type");
+            String savedOrder = savedInstanceState.getString("order");
+            if (savedType != null) {
+                sortType = savedType;
+            }
+            if (savedOrder != null) {
+                sortOrder = savedOrder;
+            }
+        }
 
         FloatingActionButton buttonAddNote = findViewById(R.id.button_add_note);
         buttonAddNote.setOnClickListener(view -> {
@@ -48,12 +65,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(noteAdapter);
 
         noteViewModel = ViewModelProviders.of(this).get(NoteViewModel.class);
-        noteViewModel.getAllNotes().observe(this, new Observer<List<Note>>() {
-            @Override
-            public void onChanged(@Nullable List<Note> notes) {
-                noteAdapter.submitList(notes);
-            }
-        });
+        uiUpdate(sortType, sortOrder);
 
         new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT) {
@@ -80,6 +92,22 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(AddNoteActivity.EXTRA_DATE, note.getDueDate());
             startActivityForResult(intent, EDIT_NOTE_REQUEST);
         });
+    }
+
+    private void uiUpdate(String sortType, String sortOrder) {
+        noteViewModel.getSortedNotes(sortType, sortOrder).observe(this, new Observer<List<Note>>() {
+            @Override
+            public void onChanged(@Nullable List<Note> notes) {
+                noteAdapter.submitList(notes);
+            }
+        });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("type", sortType);
+        outState.putString("order", sortOrder);
     }
 
     @Override
@@ -132,16 +160,25 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.sort_notes:
-                noteViewModel.getSortedNotes("title").observe(MainActivity.this, new Observer<List<Note>>() {
-                    @Override
-                    public void onChanged(@Nullable List<Note> notes) {
-                        noteAdapter.submitList(notes);
-                    }
-                });
+                SortDialog dialog = new SortDialog();
+                Bundle bundle = new Bundle();
+                bundle.putString("type", sortType);
+                bundle.putString("order", sortOrder);
+                dialog.setArguments(bundle);
+                dialog.show(getSupportFragmentManager(), "SortDialog");
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+    @Override
+    public void sendInput(String type, String order) {
+        Log.d(TAG, "sendInput: was called");
+        Log.d(TAG, "sendInput: type " + type);
+        Log.d(TAG, "sendInput: order " + order);
+        sortType = type;
+        sortOrder = order;
+        uiUpdate(sortType, sortOrder);
+    }
 }

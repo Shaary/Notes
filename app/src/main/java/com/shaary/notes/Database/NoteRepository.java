@@ -36,8 +36,8 @@ public class NoteRepository {
         return allNotes;
     }
 
-    public LiveData<List<Note>> getSortedNotes(String typeSort) {
-        SupportSQLiteQuery query = new SimpleSQLiteQuery("select * from note_table order by " + typeSort + " desc");
+    public LiveData<List<Note>> getSortedNotes(String typeSort, String orderSort) {
+        SupportSQLiteQuery query = new SimpleSQLiteQuery("select * from note_table order by " + typeSort + " " + orderSort);
         allNotes = noteDao.getSortedNotes(query);
         return allNotes;
     }
